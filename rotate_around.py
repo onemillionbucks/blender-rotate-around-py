@@ -13,7 +13,7 @@ OUTPUT_DIR_MAC_OR_LINUX = os.path.join('Users', LINUX_USER, 'Documents', 'Rotate
 
 # ('BLENDER_EEVEE', 'BLENDER_WORKBENCH', 'CYCLES', Optional: 'BLENDER_EVEE_NEXT')
 RENDER_ENGINE = 'BLENDER_EEVEE'
-CAMERA_RESOLUTION=[64,64]
+CAMERA_RESOLUTION=[256,256]
 ### ENUM "IMAGE_FIRST_OBJECT_IN_COLLECTION", "IMAGE_ALL_MESHES" <- default
 # "IMAGE_FIRST_OBJECT_IN_COLLECTION" <- use this if you have a collection
 # with several meshes that make up a model to be imaged
@@ -22,7 +22,9 @@ COLLECTION_IMAGING_MODE="IMAGE_FIRST_OBJECT_IN_COLLECTION"
 print("bpy.ops.render.image_around() is now ready to run")
 
 # Adjust to ensure object is in frame
-CAMERA_OFFSET_VECTOR = [0.0, -5.0, 5.0]
+CAMERA_OFFSET_VECTOR = [0.0, -40.0, 40.0]
+IMAGE_COUNT = 2
+COLOR_MODE = "RGBA"
 
 class LookAtCamera(bpy.types.Operator):
     bl_idname = "render.image_around"
@@ -98,11 +100,17 @@ class LookAtCamera(bpy.types.Operator):
         if not bpy.data.scenes["Scene"].render.image_settings.file_format in ["PNG", "JPEG"]:
             print("Setting render output image_settings.file_format to PNG, was ", bpy.data.scenes["Scene"].render.image_settings.file_format)
             bpy.data.scenes["Scene"].render.image_settings.file_format = "PNG"
+
+        if bpy.data.scenes["Scene"].render.image_settings.color_mode != COLOR_MODE:
+            print("Setting render output image_settings.color_mode to ", COLOR_MODE, " was ", bpy.data.scenes["Scene"].render.image_settings.color_mode)
+            bpy.data.scenes["Scene"].render.image_settings.color_mode
+
+
         output_file_pattern_string = tgtObject.name + '%d.jpg'
 
         original_rotation_z = tgtObject.rotation_euler.z
         tgtObject.rotation_euler.z = 0.0
-        imgCount = 8
+        imgCount = IMAGE_COUNT
         for i in range(imgCount):
             tgtObject.rotation_euler.z = i * 2 * math.pi / imgCount
             bpy.context.scene.render.filepath = os.path.join(self.output_dir, (output_file_pattern_string % i))
