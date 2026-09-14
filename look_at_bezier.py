@@ -8,9 +8,17 @@ import bpy
 import math
 import os
 
+## SET YOUR OUTPUT DIR HERE
+OUTPUT_DIR_WINDOWS = os.path.join('B:', '\Models', 'Rotated Images')
+LINUX_USER = "Seb"
+OUTPUT_DIR_MAC_OR_LINUX = os.path.join('Users', LINUX_USER, 'Documents', 'Rotated Images')
+
+BEZIER_CIRCLE_SCALE=10.0
+
 class LookAtCamera(bpy.types.Operator):
     bl_idname = "render.image_around"
     bl_label = "Rotate 360 and Take 8 Pictures"
+    output_dir = ""
 
     def execute(self, context):
         # DESELECT ALL
@@ -35,7 +43,7 @@ class LookAtCamera(bpy.types.Operator):
         # Create a Bezier Circle for the camera to be fixed on
         try:
             bezierCircle = bpy.data.objects['BézierCircle']
-
+            print("Recreating the bezier circle")
             bezierCircle.select_set(True)
             bpy.ops.object.delete()
         except KeyError:
@@ -43,9 +51,9 @@ class LookAtCamera(bpy.types.Operator):
 
         bpy.ops.curve.primitive_bezier_circle_add(radius=4.0,
          enter_editmode=False, align='WORLD',
-          location=(0.0, 0.0, 6.0),
+          location=(0.0, 0.0, BEZIER_CIRCLE_SCALE),
            rotation=(0.0, 0.0, math.pi), # 180 degrees so that we start facing front
-            scale=(6.0, 6.0, 6.0))
+            scale=(BEZIER_CIRCLE_SCALE, BEZIER_CIRCLE_SCALE, BEZIER_CIRCLE_SCALE))
 
         bezierCircle = bpy.data.objects["BézierCircle"]
         # DESELECT ALL
@@ -84,24 +92,31 @@ class LookAtCamera(bpy.types.Operator):
         bpy.ops.render.view_show()
 
         bpy.context.scene.render.filepath
-        output_dir = "/Users/sebastiandetering/pdev/blender-api/outputs"
+
         output_file_pattern_string = 'suzanne%d.jpg'
-
-        if not os.path.exists(output_dir):
-            print("creating output directory.")
-            os.mkdir(output_dir)
-
 
         # Rendering 8 images
         # X Position on path is from 0 - 10 for some reason
 
         for i in range(8):
-            bpy.context.scene.render.filepath = os.path.join(output_dir, (output_file_pattern_string % i))
+            bpy.context.scene.render.filepath = os.path.join(self.output_dir, (output_file_pattern_string % i))
             cam.location.x = i * 10/8
             bpy.ops.render.opengl(write_still=True, view_context=False)
 
         print("Saved images to: " + output_dir)
         return {'FINISHED'}
 
+    def set_operating_system_output_directory(self):
+        if os.name == 'nt':
+            self.output_dir = OUTPUT_DIR_WINDOWS
+        else:
+            self.output_dir = OUTPUT_DIR_MAC_OR_LINUX
+
+
+        print(self.output_dir)
+
+        if not os.path.exists(self.output_dir):
+            print("creating output directory.")
+            os.mkdir(self.output_dir)
 
 bpy.utils.register_class(LookAtCamera)
