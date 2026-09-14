@@ -17,14 +17,17 @@ CAMERA_RESOLUTION=[256,256]
 ### ENUM "IMAGE_FIRST_OBJECT_IN_COLLECTION", "IMAGE_ALL_MESHES" <- default
 # "IMAGE_FIRST_OBJECT_IN_COLLECTION" <- use this if you have a collection
 # with several meshes that make up a model to be imaged
+# "IMAGE_OBJECT_WITH_NAME_IN_COLLECTION" <- sometimes the first Mesh in the collection is the first nested Mesh
+# Not the very first mesh, so you can use this for explicit names "MyMesh"
+COLLECTION_IMAGING_MODE="IMAGE_OBJECT_WITH_NAME_IN_COLLECTION"
+TARGET_MESH_NAMES=["Cylinder"]
 
-COLLECTION_IMAGING_MODE="IMAGE_FIRST_OBJECT_IN_COLLECTION"
 print("bpy.ops.render.image_around() is now ready to run")
 
 # Adjust to ensure object is in frame
 CAMERA_OFFSET_VECTOR = [0.0, -40.0, 40.0]
-IMAGE_COUNT = 2
 COLOR_MODE = "RGBA"
+IMAGE_COUNT = 8
 
 class LookAtCamera(bpy.types.Operator):
     bl_idname = "render.image_around"
@@ -44,6 +47,8 @@ class LookAtCamera(bpy.types.Operator):
 
         if COLLECTION_IMAGING_MODE == "IMAGE_FIRST_OBJECT_IN_COLLECTION":
             self.fetch_first_mesh_in_each_collection()
+        elif COLLECTION_IMAGING_MODE == "IMAGE_OBJECT_WITH_NAME_IN_COLLECTION":
+            self.fetch_named_mesh_in_each_collection()
         else:
             self.fetch_all_meshes()
 
@@ -62,9 +67,29 @@ class LookAtCamera(bpy.types.Operator):
             for col in bpy.data.collections:
                 if len(col.objects) > 0:
                     found_mesh = False
+                    print(col.objects[0])
                     for o in col.objects:
                         if o.type == 'MESH':
                             print("using first mesh ", o, " found in collection ", col)
+                            self.mesh_objects.append(o)
+                            found_mesh = True
+                            break
+                    if not found_mesh:
+                        print("No mesh found in collection", col)
+                else:
+                    print("Empty collection", col)
+        else:
+            print('NO COLLECTIONS')
+
+    def fetch_named_mesh_in_each_collection(self):
+        if len(bpy.data.collections) > 0:
+            for col in bpy.data.collections:
+                if len(col.objects) > 0:
+                    found_mesh = False
+                    print("Collection with object ", col.objects[0])
+                    for o in col.objects:
+                        if o.type == 'MESH' and (o.name in TARGET_MESH_NAMES):
+                            print("using mesh with name ", o, " found in collection ", col)
                             self.mesh_objects.append(o)
                             found_mesh = True
                             break
