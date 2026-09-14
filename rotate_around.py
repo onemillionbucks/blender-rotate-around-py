@@ -95,8 +95,11 @@ class LookAtCamera(bpy.types.Operator):
             os.mkdir(self.output_dir)
 
     def renderTarget(self, context, tgtObject):
+        if not bpy.data.scenes["Scene"].render.image_settings.file_format in ["PNG", "JPEG"]:
+            print("Setting render output image_settings.file_format to PNG, was ", bpy.data.scenes["Scene"].render.image_settings.file_format)
+            bpy.data.scenes["Scene"].render.image_settings.file_format = "PNG"
         output_file_pattern_string = tgtObject.name + '%d.jpg'
-        
+
         original_rotation_z = tgtObject.rotation_euler.z
         tgtObject.rotation_euler.z = 0.0
         imgCount = 8
