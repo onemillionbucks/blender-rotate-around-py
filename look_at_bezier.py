@@ -13,7 +13,7 @@ OUTPUT_DIR_WINDOWS = os.path.join('B:', '\Models', 'Rotated Images')
 LINUX_USER = "Seb"
 OUTPUT_DIR_MAC_OR_LINUX = os.path.join('Users', LINUX_USER, 'Documents', 'Rotated Images')
 
-BEZIER_CIRCLE_SCALE=10.0
+BEZIER_CIRCLE_RADIUS=10.0
 TARGET_OBJECT="Suzanne"
 
 class LookAtCamera(bpy.types.Operator):
@@ -24,6 +24,8 @@ class LookAtCamera(bpy.types.Operator):
     def execute(self, context):
         # DESELECT ALL
         bpy.ops.object.select_all(action='DESELECT')
+
+        self.set_operating_system_output_directory()
 
         # select camera, delete it, make a fresh one.
         try:
@@ -50,11 +52,11 @@ class LookAtCamera(bpy.types.Operator):
         except KeyError:
             print("Creating BézierCircle")
 
-        bpy.ops.curve.primitive_bezier_circle_add(radius=4.0,
+        bpy.ops.curve.primitive_bezier_circle_add(radius=BEZIER_CIRCLE_RADIUS,
          enter_editmode=False, align='WORLD',
-          location=(0.0, 0.0, BEZIER_CIRCLE_SCALE),
+          location=(0.0, 0.0, BEZIER_CIRCLE_RADIUS),
            rotation=(0.0, 0.0, math.pi), # 180 degrees so that we start facing front
-            scale=(BEZIER_CIRCLE_SCALE, BEZIER_CIRCLE_SCALE, BEZIER_CIRCLE_SCALE))
+            scale=(1.0, 1.0, 1.0))
 
         bezierCircle = bpy.data.objects["BezierCircle"]
         # DESELECT ALL
@@ -94,7 +96,7 @@ class LookAtCamera(bpy.types.Operator):
 
         bpy.context.scene.render.filepath
 
-        output_file_pattern_string = 'suzanne%d.jpg'
+        output_file_pattern_string = TARGET_OBJECT + '_%d.png'
 
         # Rendering 8 images
         # X Position on path is from 0 - 10 for some reason
