@@ -14,6 +14,7 @@ LINUX_USER = "Seb"
 OUTPUT_DIR_MAC_OR_LINUX = os.path.join('Users', LINUX_USER, 'Documents', 'Rotated Images')
 
 BEZIER_CIRCLE_RADIUS=10.0
+IMAGE_COUNT=8
 TARGET_OBJECT="Suzanne"
 
 class LookAtCamera(bpy.types.Operator):
@@ -39,7 +40,11 @@ class LookAtCamera(bpy.types.Operator):
         bpy.ops.object.camera_add()
         cam = bpy.data.objects["Camera"]
         context.scene.camera = cam
-
+        # https://blender.stackexchange.com/questions/30643/how-to-toggle-to-camera-view-via-python
+        for area in bpy.context.screen.areas:
+            if area.type == 'VIEW_3D':
+                area.spaces[0].region_3d.view_perspective = 'CAMERA'
+                break
         # DESELECT ALL
         bpy.ops.object.select_all(action='DESELECT')
 
@@ -101,9 +106,9 @@ class LookAtCamera(bpy.types.Operator):
         # Rendering 8 images
         # X Position on path is from 0 - 10 for some reason
 
-        for i in range(8):
+        for i in range(IMAGE_COUNT):
             bpy.context.scene.render.filepath = os.path.join(self.output_dir, (output_file_pattern_string % i))
-            cam.location.x = i * 10/8
+             cam.location.x = BEZIER_CIRCLE_RADIUS * math.sin(math.pi * i / ( 2 * IMAGE_COUNT) )
             bpy.ops.render.opengl(write_still=True, view_context=False)
 
         print("Saved images to: " + self.output_dir)
