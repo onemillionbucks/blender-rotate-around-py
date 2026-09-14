@@ -104,7 +104,7 @@ class LookAtCamera(bpy.types.Operator):
             cam.location.x = i * 10/8
             bpy.ops.render.opengl(write_still=True, view_context=False)
 
-        print("Saved images to: " + output_dir)
+        print("Saved images to: " + self.output_dir)
         return {'FINISHED'}
 
     def set_operating_system_output_directory(self):
