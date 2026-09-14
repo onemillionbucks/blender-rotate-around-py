@@ -14,6 +14,7 @@ LINUX_USER = "Seb"
 OUTPUT_DIR_MAC_OR_LINUX = os.path.join('Users', LINUX_USER, 'Documents', 'Rotated Images')
 
 BEZIER_CIRCLE_SCALE=10.0
+TARGET_OBJECT="Suzanne"
 
 class LookAtCamera(bpy.types.Operator):
     bl_idname = "render.image_around"
@@ -42,7 +43,7 @@ class LookAtCamera(bpy.types.Operator):
 
         # Create a Bezier Circle for the camera to be fixed on
         try:
-            bezierCircle = bpy.data.objects['BézierCircle']
+            bezierCircle = bpy.data.objects['BezierCircle']
             print("Recreating the bezier circle")
             bezierCircle.select_set(True)
             bpy.ops.object.delete()
@@ -55,7 +56,7 @@ class LookAtCamera(bpy.types.Operator):
            rotation=(0.0, 0.0, math.pi), # 180 degrees so that we start facing front
             scale=(BEZIER_CIRCLE_SCALE, BEZIER_CIRCLE_SCALE, BEZIER_CIRCLE_SCALE))
 
-        bezierCircle = bpy.data.objects["BézierCircle"]
+        bezierCircle = bpy.data.objects["BezierCircle"]
         # DESELECT ALL
         bpy.ops.object.select_all(action='DESELECT')
 
@@ -76,7 +77,7 @@ class LookAtCamera(bpy.types.Operator):
         # Object (selected for Lock Track target)
         cam.select_set(True)
 
-        lockTargetObj = bpy.data.objects["Suzanne"]
+        lockTargetObj = bpy.data.objects[TARGET_OBJECT]
         lockTargetObj.select_set(True)
 
         bpy.ops.object.constraint_add_with_targets(type="LOCKED_TRACK")
