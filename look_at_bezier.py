@@ -109,7 +109,7 @@ class LookAtCamera(bpy.types.Operator):
         for i in range(IMAGE_COUNT):
             bpy.context.scene.render.filepath = os.path.join(self.output_dir, (output_file_pattern_string % i))
              cam.location.x = BEZIER_CIRCLE_RADIUS * math.sin(math.pi * i / ( 2 * IMAGE_COUNT) )
-            bpy.ops.render.opengl(write_still=True, view_context=False)
+            bpy.ops.render.render(write_still=True, use_viewport=True)
 
         print("Saved images to: " + self.output_dir)
         return {'FINISHED'}
