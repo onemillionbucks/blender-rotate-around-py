@@ -103,12 +103,13 @@ class LookAtCamera(bpy.types.Operator):
 
         output_file_pattern_string = TARGET_OBJECT + '_%d.png'
 
-        # Rendering 8 images
-        # X Position on path is from 0 - 10 for some reason
-
+        # Rendering images
+        # X position is the only thing that maps a locked track, with the setup we have here it goes from
+        # X = 1.5 * BEZIER_CIRCLE_RADIUS -> 0
+        # X = -0.5 * BEZIER_CIRCLE_RADIUS -> 2PI
         for i in range(IMAGE_COUNT):
             bpy.context.scene.render.filepath = os.path.join(self.output_dir, (output_file_pattern_string % i))
-             cam.location.x = BEZIER_CIRCLE_RADIUS * math.sin(math.pi * i / ( 2 * IMAGE_COUNT) )
+            cam.location.x = 1.5 * BEZIER_CIRCLE_RADIUS - 2 * BEZIER_CIRCLE_RADIUS * (i / IMAGE_COUNT)
             bpy.ops.render.render(write_still=True, use_viewport=True)
 
         print("Saved images to: " + self.output_dir)
